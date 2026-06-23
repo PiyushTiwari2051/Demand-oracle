@@ -46,11 +46,13 @@ const simModelHoldingText = document.getElementById('sim-model-holding');
 const simModelCostTotalText = document.getElementById('sim-model-cost-total');
 
 const consoleLogs = document.getElementById('console-logs');
+const themeToggle = document.getElementById('theme-toggle');
 
 // Initial Setup
 document.addEventListener('DOMContentLoaded', async () => {
     addLogLine('System boot sequence initiated.', 'info');
     setupTabs();
+    setupTheme();
     await loadData();
     setupSelectors();
     setupSimulator();
@@ -59,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Tab Switching Logic
 function setupTabs() {
-    const navItems = document.querySelectorAll('.nav-btn');
+    const navItems = document.querySelectorAll('.nav-btn:not(.theme-toggle-btn)');
     const sections = document.querySelectorAll('.tab-section');
     
     navItems.forEach(item => {
@@ -75,6 +77,35 @@ function setupTabs() {
     });
 }
 
+// Theme Toggle Setup
+function setupTheme() {
+    // Check saved preference
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeToggle.textContent = '[ THEME: LIGHT ]';
+    } else {
+        document.body.classList.remove('light-theme');
+        themeToggle.textContent = '[ THEME: DARK ]';
+    }
+    
+    themeToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('light-theme')) {
+            document.body.classList.remove('light-theme');
+            themeToggle.textContent = '[ THEME: DARK ]';
+            localStorage.setItem('theme', 'dark');
+            addLogLine('Theme changed to: [DARK MODE]', 'info');
+        } else {
+            document.body.classList.add('light-theme');
+            themeToggle.textContent = '[ THEME: LIGHT ]';
+            localStorage.setItem('theme', 'light');
+            addLogLine('Theme changed to: [LIGHT MODE]', 'info');
+        }
+        // Redraw chart to update grid line and label colors
+        updateDashboard();
+    });
+}
+
 // Log utility
 function addLogLine(message, type = 'info') {
     const time = new Date().toLocaleTimeString();
@@ -84,7 +115,7 @@ function addLogLine(message, type = 'info') {
     if (type === 'success') {
         line.innerHTML = `[${time}] <span class="text-green">${message}</span>`;
     } else if (type === 'warning') {
-        line.innerHTML = `[${time}] <span class="text-yellow">${message}</span>`;
+        line.innerHTML = `[${time}] <span class="text-red">${message}</span>`;
     } else {
         line.innerHTML = `[${time}] <span>${message}</span>`;
     }
@@ -259,6 +290,17 @@ function renderForecastChart(dates, skuData) {
         return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     });
     
+    // Read computed style properties from the document variables
+    const bodyStyles = getComputedStyle(document.body);
+    const gridColor = bodyStyles.getPropertyValue('--chart-grid').trim();
+    const textColor = bodyStyles.getPropertyValue('--chart-text').trim();
+    const intervalColor = bodyStyles.getPropertyValue('--chart-interval').trim();
+    
+    const actualColor = bodyStyles.getPropertyValue('--accent-green-border').trim();
+    const modelColor = bodyStyles.getPropertyValue('--accent-red').trim();
+    const baselineColor = bodyStyles.getPropertyValue('--accent-orange').trim();
+    const boundColor = bodyStyles.getPropertyValue('--accent-blue').trim();
+    
     currentChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -276,7 +318,7 @@ function renderForecastChart(dates, skuData) {
                     label: '90% Prediction Interval',
                     data: skuData.u,
                     borderColor: 'transparent',
-                    backgroundColor: 'rgba(88, 166, 255, 0.08)',
+                    backgroundColor: intervalColor,
                     pointRadius: 0,
                     fill: 0,
                     tension: 0
@@ -284,7 +326,7 @@ function renderForecastChart(dates, skuData) {
                 {
                     label: 'Actual Sales',
                     data: skuData.y,
-                    borderColor: '#2ea043',
+                    borderColor: actualColor,
                     borderWidth: 1.5,
                     pointRadius: 0.5,
                     pointHoverRadius: 3,
@@ -293,7 +335,7 @@ function renderForecastChart(dates, skuData) {
                 {
                     label: 'LightGBM Forecast',
                     data: skuData.p,
-                    borderColor: '#f85149',
+                    borderColor: modelColor,
                     borderWidth: 1.5,
                     pointRadius: 0.5,
                     pointHoverRadius: 3,
@@ -303,7 +345,7 @@ function renderForecastChart(dates, skuData) {
                 {
                     label: 'Naive Baseline',
                     data: skuData.b,
-                    borderColor: '#db6d28',
+                    borderColor: baselineColor,
                     borderWidth: 1,
                     pointRadius: 0,
                     borderDash: [2, 2],
@@ -315,7 +357,7 @@ function renderForecastChart(dates, skuData) {
             responsive: true,
             maintainAspectRatio: false,
             animation: {
-                duration: 0 // Disable animation to match minimalist terminal aesthetics
+                duration: 0
             },
             interaction: {
                 mode: 'index',
@@ -326,10 +368,10 @@ function renderForecastChart(dates, skuData) {
                     display: false
                 },
                 tooltip: {
-                    backgroundColor: '#0d1117',
-                    titleColor: '#f0f6fc',
-                    bodyColor: '#8b949e',
-                    borderColor: '#30363d',
+                    backgroundColor: bodyStyles.getPropertyValue('--bg-panel').trim(),
+                    titleColor: bodyStyles.getPropertyValue('--text-primary').trim(),
+                    bodyColor: bodyStyles.getPropertyValue('--text-secondary').trim(),
+                    borderColor: bodyStyles.getPropertyValue('--border-color').trim(),
                     borderWidth: 1,
                     cornerRadius: 0,
                     padding: 8,
@@ -340,22 +382,22 @@ function renderForecastChart(dates, skuData) {
             scales: {
                 x: {
                     grid: {
-                        color: '#21262d',
-                        tickColor: '#30363d'
+                        color: gridColor,
+                        tickColor: bodyStyles.getPropertyValue('--border-color').trim()
                     },
                     ticks: {
-                        color: '#8b949e',
+                        color: textColor,
                         font: { family: 'JetBrains Mono', size: 9 },
                         maxTicksLimit: 12
                     }
                 },
                 y: {
                     grid: {
-                        color: '#21262d',
-                        tickColor: '#30363d'
+                        color: gridColor,
+                        tickColor: bodyStyles.getPropertyValue('--border-color').trim()
                     },
                     ticks: {
-                        color: '#8b949e',
+                        color: textColor,
                         font: { family: 'JetBrains Mono', size: 9 }
                     }
                 }
@@ -450,6 +492,7 @@ function formatCurrency(value) {
     });
 }
 
+// Helpers: Formatting Compact Currency
 function formatCompactCurrency(value) {
     if (value >= 10000000) { // Crore
         return '₹' + (value / 10000000).toFixed(2) + ' Cr';
