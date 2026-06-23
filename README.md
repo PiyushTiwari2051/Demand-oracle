@@ -25,6 +25,12 @@
   <img src="https://img.shields.io/badge/90%25_PI_Coverage-brightgreen?style=for-the-badge&labelColor=0D1117" />
 </p>
 
+<p align="center">
+  <a href="https://demand-oracle.vercel.app" target="_blank">
+    <img src="https://img.shields.io/badge/Live_Interactive_Dashboard-deployed-blueviolet?style=for-the-badge&logo=vercel" alt="Live Dashboard" />
+  </a>
+</p>
+
 <img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
 ## 🛠️ What This Actually Does
