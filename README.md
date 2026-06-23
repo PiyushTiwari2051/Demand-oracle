@@ -33,6 +33,12 @@ Look, retail demand forecasting is usually a mess of generic ARIMA models or ove
 
 Instead of just printing a boring MAPE score, it translates those predictions into actual inventory holding and stockout costs so you know exactly how much cash you're saving.
 
+### 📈 Visual Forecast Performance (Store 1, Item 1)
+Below is the visual actuals-vs-forecast tracking output generated during the test evaluation:
+<p align="center">
+  <img src="outputs/plots/07_actual_vs_predicted.png" width="90%" alt="Actual vs Predicted sales" />
+</p>
+
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 📐 System Architecture
@@ -116,6 +122,12 @@ Where:
 *   \(P_{\text{selling}}\) is the retail price (₹250), and \(\gamma\) is the stockout penalty multiplier (1.5x).
 *   \(C_{\text{unit}}\) is the buying price from supplier (₹150), and \(\theta\) is the annual holding rate (25%).
 
+#### 💼 Business Financial Cost Comparison
+Below is the bar cost visual output illustrating savings:
+<p align="center">
+  <img src="outputs/plots/09_business_impact.png" width="90%" alt="Inventory Cost Comparison" />
+</p>
+
 ### 2. Residual Bootstrapping for Prediction Intervals
 To calculate the 90% confidence range, we don't assume standard normal distributions. Instead, we use non-parametric residual bootstrapping:
 
@@ -124,9 +136,12 @@ To calculate the 90% confidence range, we don't assume standard normal distribut
 Where:
 *   \(\hat{y}_{t, b}^*\) is the \(b\)-th bootstrap prediction for step \(t\).
 *   \(\epsilon_b^*\) is a residual sampled with replacement from the set of training errors \(e_i = y_i - \hat{y}_i\).
-*   The 90% interval is defined by taking the 5th and 95th percentiles of the bootstrap distribution:
 
-\[\left[ \text{Percentile}_{5}(\{\hat{y}_{t, b}^*\}_{b=1}^{B}), \, \text{Percentile}_{95}(\{\hat{y}_{t, b}^*\}_{b=1}^{B}) \right]\]
+#### 🔮 Safety Stock Prediction Bands
+Below is the forecast plotted with prediction intervals:
+<p align="center">
+  <img src="outputs/plots/10_prediction_intervals.png" width="90%" alt="Forecast with Prediction Intervals" />
+</p>
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
@@ -152,7 +167,7 @@ df['days_to_holiday'] = df['date'].map(date_to_days).clip(upper=7)
 ```
 This brought the execution time down to **0.23 seconds**. That is a **900x speedup** with 4 lines of clean python.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
+---
 
 ## 📓 Walk-Forward Backtesting (Historical Simulation)
 
@@ -166,7 +181,7 @@ Instead of a single test split, we simulate historical deployments across 4 cuto
                        └────────── Train Set ──────────────┘    └─ Test ─┘
 ```
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
+---
 
 ## 🚀 How the Bootstrap Algorithm Works
 
@@ -195,6 +210,12 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
   └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+#### 📊 Model Diagnostics (Residual Analysis)
+Below are the training residual charts:
+<p align="center">
+  <img src="outputs/plots/08_residual_analysis.png" width="90%" alt="Residual Diagnostics" />
+</p>
+
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 🛠️ The Tech Stack (and why I chose it)
@@ -206,6 +227,12 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 | **Pandas & NumPy** | Vectorized feature operations. I avoided custom Python loops to run operations at C-speed. |
 | **Statsmodels** | Used for multiplicative seasonal decomposition to extract trend and residuals. |
 | **Matplotlib** | Clean, minimalist visual plots (no default plotting formats). |
+
+#### 📊 Feature Gain Importance Chart
+Below is the relative feature importances chart:
+<p align="center">
+  <img src="outputs/plots/06_feature_importance.png" width="90%" alt="Feature Importance Chart" />
+</p>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
