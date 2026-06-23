@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=18&duration=4000&pause=1000&color=F8F8F2&center=true&vCenter=true&width=650&lines=500+SKUs.+one+model.+7+seconds+flat.;saved+%E2%82%B913.7L+in+a+single+test+run.;data+leakage+is+a+crime.+we+don't+commit+it.;built+this+at+3am.+it+works+in+production.;LightGBM+because+Prophet+was+too+slow+and+I+got+annoyed." alt="Typing Tagline" />
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=18&duration=4000&pause=1000&color=000000&center=true&vCenter=true&width=650&lines=500+SKUs.+one+model.+7+seconds+flat.;saved+%E2%82%B913.7L+in+a+single+test+run.;data+leakage+is+a+crime.+we+don't+commit+it.;built+this+at+3am.+it+works+in+production.;LightGBM+because+Prophet+was+too+slow+and+I+got+annoyed." alt="Typing Tagline" />
 </p>
 
 <p align="center">
