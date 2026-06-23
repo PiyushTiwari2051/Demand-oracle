@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 780" width="100%" height="100%">
+  <defs>
+    <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-yellow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter id="glow-orange" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1000" height="780" fill="#0D1117" />
+
+  <!-- Connections -->
+  <g stroke="#FF6B35" stroke-width="2.5" fill="none" stroke-linecap="round">
+    <!-- Input to Tracks -->
+    <path d="M 500 95 V 110 H 200 V 130" />
+    <path d="M 500 95 V 130" />
+    <path d="M 500 110 H 800 V 130" />
+
+    <!-- Track A Internal Flow -->
+    <path d="M 200 170 V 190" stroke="#00D4FF" />
+    <path d="M 200 230 V 250" stroke="#00D4FF" />
+    <path d="M 200 295 V 315" stroke="#00D4FF" />
+    <path d="M 200 360 V 380" stroke="#00D4FF" />
+
+    <!-- Track B Internal Flow -->
+    <path d="M 500 170 V 190" stroke="#FFB86C" />
+    <path d="M 500 230 V 250" stroke="#FFB86C" />
+    <path d="M 500 295 V 315" stroke="#FFB86C" />
+    <path d="M 500 360 V 380" stroke="#FFB86C" />
+
+    <!-- Track C Internal Flow -->
+    <path d="M 800 170 V 190" stroke="#BD93F9" />
+    <path d="M 800 235 V 250" stroke="#BD93F9" />
+    <path d="M 800 290 V 315" stroke="#BD93F9" />
+    <path d="M 800 360 V 380" stroke="#BD93F9" />
+
+    <!-- Merge Paths (Convergence) -->
+    <path d="M 200 420 V 480 H 500 V 540" stroke-width="3" />
+    <path d="M 500 420 V 540" stroke-width="3" />
+    <path d="M 800 420 V 480 H 500" stroke-width="3" />
+
+    <!-- Final Flow -->
+    <path d="M 500 600 V 650" stroke-width="3" />
+  </g>
+
+  <!-- Input Node -->
+  <g transform="translate(375, 40)">
+    <rect width="250" height="55" rx="6" fill="#1E1E2E" stroke="#FF6B35" stroke-width="2.5" filter="url(#glow-orange)" />
+    <text x="125" y="25" fill="#F8F8F2" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">Raw Data Source</text>
+    <text x="125" y="42" fill="#00D4FF" font-family="monospace" font-size="10.5" text-anchor="middle">[ date | store | item | sales ]</text>
+  </g>
+
+  <!-- COLUMN A: Calendar Features (Cyan) -->
+  <g transform="translate(100, 130)">
+    <!-- A1 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="12" text-anchor="middle">raw date column</text>
+  </g>
+  <g transform="translate(100, 190)">
+    <!-- A2 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ dayofweek (0-6)</text>
+  </g>
+  <g transform="translate(100, 250)">
+    <!-- A3 -->
+    <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+    <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ month_sin/cos</text>
+    <text x="100" y="34" fill="#00D4FF" font-family="monospace" font-size="9" text-anchor="middle">sin(2π * m / 12)</text>
+  </g>
+  <g transform="translate(100, 315)">
+    <!-- A4 -->
+    <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+    <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ dayofweek_sin/cos</text>
+    <text x="100" y="34" fill="#00D4FF" font-family="monospace" font-size="9" text-anchor="middle">sin(2π * d / 7)</text>
+  </g>
+  <g transform="translate(100, 380)">
+    <!-- A5 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ is_weekend (bool)</text>
+  </g>
+  <text x="200" y="445" fill="#00D4FF" font-family="sans-serif" font-size="10.5" text-anchor="middle" font-style="italic">"Circular encoding so Dec &amp; Jan feel close"</text>
+
+
+  <!-- COLUMN B: Holiday Proximity (Yellow) -->
+  <g transform="translate(400, 130)">
+    <!-- B1 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="12" text-anchor="middle">date column</text>
+  </g>
+  <g transform="translate(400, 190)">
+    <!-- B2 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ unique (1,826 rows)</text>
+  </g>
+  <g transform="translate(400, 250)">
+    <!-- B3 -->
+    <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+    <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ min distance (days)</text>
+    <text x="100" y="34" fill="#FFB86C" font-family="monospace" font-size="9" text-anchor="middle">calculate on 1.8k rows</text>
+  </g>
+  <g transform="translate(400, 315)">
+    <!-- B4 -->
+    <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+    <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ map to 913k rows</text>
+    <text x="100" y="34" fill="#FFB86C" font-family="monospace" font-size="9" text-anchor="middle">date dict map lookup</text>
+  </g>
+  <g transform="translate(400, 380)">
+    <!-- B5 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ clip at 7 days max</text>
+  </g>
+  <!-- Speedup Note -->
+  <g transform="translate(380, 435)">
+    <rect width="240" height="40" rx="4" fill="#0D1117" stroke="#FFB86C" stroke-width="1" stroke-dasharray="3 3" />
+    <text x="120" y="16" fill="#F8F8F2" font-family="monospace" font-size="9.5" text-anchor="middle">BEFORE: 913k rows * apply() = 2.5m</text>
+    <text x="120" y="30" fill="#39D353" font-family="monospace" font-size="9.5" text-anchor="middle">AFTER:  1.8k unique + map = 0.23s</text>
+  </g>
+  <text x="500" y="490" fill="#FFB86C" font-family="sans-serif" font-size="10.5" text-anchor="middle" font-style="italic">"900× speedup using dict lookup"</text>
+
+
+  <!-- COLUMN C: Lag & Rolling Features (Purple) -->
+  <g transform="translate(700, 130)">
+    <!-- C1 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="12" text-anchor="middle">sales column</text>
+  </g>
+  <g transform="translate(700, 190)">
+    <!-- C2: Leakage Guard (Red, Glowing) -->
+    <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#FF5555" stroke-width="2" filter="url(#glow-red)" />
+    <text x="100" y="20" fill="#FF5555" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">⚠️ .shift(1)</text>
+    <text x="100" y="35" fill="#FF5555" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">LEAKAGE GUARD</text>
+  </g>
+  <g transform="translate(700, 250)">
+    <!-- C3 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ lag_1, lag_7, lag_365</text>
+  </g>
+  <g transform="translate(700, 315)">
+    <!-- C4 -->
+    <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+    <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11" text-anchor="middle">→ rolling(30).mean()</text>
+    <text x="100" y="34" fill="#BD93F9" font-family="monospace" font-size="11" text-anchor="middle">→ rolling(90).std()</text>
+  </g>
+  <g transform="translate(700, 380)">
+    <!-- C5 -->
+    <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+    <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11" text-anchor="middle">→ expanding().mean()</text>
+  </g>
+  <text x="800" y="445" fill="#BD93F9" font-family="sans-serif" font-size="10.5" text-anchor="middle" font-style="italic">"shift(1) is non-negotiable"</text>
+
+
+  <!-- MERGED NODES -->
+  <!-- Final Feature Matrix -->
+  <g transform="translate(250, 540)">
+    <rect width="500" height="60" rx="8" fill="#1E1E2E" stroke="#FF6B35" stroke-width="2.5" filter="url(#glow-orange)" />
+    <text x="250" y="27" fill="#F8F8F2" font-family="monospace" font-size="14.5" font-weight="bold" text-anchor="middle">Final Feature Matrix</text>
+    <text x="250" y="45" fill="#FF6B35" font-family="monospace" font-size="11.5" text-anchor="middle">913,000 rows × 15 engineered columns</text>
+  </g>
+
+  <!-- Output File (Cyan, Dashed) -->
+  <g transform="translate(250, 650)">
+    <rect width="500" height="60" rx="8" fill="#1E1E2E" stroke="#00D4FF" stroke-width="2.5" stroke-dasharray="6 4" />
+    <text x="250" y="27" fill="#F8F8F2" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">data/processed/features.csv</text>
+    <text x="250" y="45" fill="#00D4FF" font-family="monospace" font-size="11.5" text-anchor="middle">271MB written to disk (Ready for LightGBM)</text>
+  </g>
+</svg>

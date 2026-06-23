@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feature Engineering Pipeline - Demand Oracle</title>
+  <style>
+    body {
+      background-color: #0D1117;
+      color: #F8F8F2;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1 {
+      color: #FF6B35;
+      font-size: 1.8rem;
+      margin-top: 20px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(255, 107, 53, 0.4);
+    }
+    .container {
+      width: 90%;
+      max-width: 950px;
+      background: #1E1E2E;
+      border: 1px solid #BD93F9;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(189, 147, 249, 0.15);
+      padding: 20px;
+      margin: 20px 0;
+      position: relative;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+    }
+    .node {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .node:hover {
+      transform: translateY(-2px);
+    }
+    .tooltip {
+      position: absolute;
+      background: #0D1117;
+      color: #F8F8F2;
+      padding: 10px;
+      border: 1px solid #FF6B35;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 0 15px rgba(255, 107, 53, 0.3);
+      max-width: 280px;
+      z-index: 10;
+    }
+    
+    /* Sequential Animations */
+    .anim-node {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: slide-in 0.5s ease-out forwards;
+    }
+    .anim-connection {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: draw-connection 0.8s ease-in-out forwards;
+    }
+    .leakage-guard {
+      animation: leakage-flash 1s infinite alternate;
+    }
+
+    @keyframes slide-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes draw-connection {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    @keyframes leakage-flash {
+      0% {
+        stroke: #FF5555;
+        filter: drop-shadow(0 0 2px #FF5555);
+      }
+      100% {
+        stroke: #FF0000;
+        filter: drop-shadow(0 0 10px #FF0000);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Feature Engineering Pipeline</h1>
+  <div class="container">
+    <div class="tooltip" id="tooltip">Hover over a node to examine detail engineering steps!</div>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 780">
+      <defs>
+        <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glow-yellow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glow-purple" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glow-red" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glow-orange" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Connections (Drawn after nodes load) -->
+      <g stroke="#FF6B35" stroke-width="2.5" fill="none" stroke-linecap="round">
+        <!-- Input to Tracks -->
+        <path class="anim-connection" d="M 500 95 V 110 H 200 V 130" style="animation-delay: 0.2s;" />
+        <path class="anim-connection" d="M 500 95 V 130" style="animation-delay: 1.0s;" />
+        <path class="anim-connection" d="M 500 110 H 800 V 130" style="animation-delay: 1.8s;" />
+
+        <!-- Track A Internal Flow -->
+        <path class="anim-connection" d="M 200 170 V 190" stroke="#00D4FF" style="animation-delay: 0.4s;" />
+        <path class="anim-connection" d="M 200 230 V 250" stroke="#00D4FF" style="animation-delay: 0.6s;" />
+        <path class="anim-connection" d="M 200 295 V 315" stroke="#00D4FF" style="animation-delay: 0.8s;" />
+        <path class="anim-connection" d="M 200 360 V 380" stroke="#00D4FF" style="animation-delay: 1.0s;" />
+
+        <!-- Track B Internal Flow -->
+        <path class="anim-connection" d="M 500 170 V 190" stroke="#FFB86C" style="animation-delay: 1.2s;" />
+        <path class="anim-connection" d="M 500 230 V 250" stroke="#FFB86C" style="animation-delay: 1.4s;" />
+        <path class="anim-connection" d="M 500 295 V 315" stroke="#FFB86C" style="animation-delay: 1.6s;" />
+        <path class="anim-connection" d="M 500 360 V 380" stroke="#FFB86C" style="animation-delay: 1.8s;" />
+
+        <!-- Track C Internal Flow -->
+        <path class="anim-connection" d="M 800 170 V 190" stroke="#BD93F9" style="animation-delay: 2.0s;" />
+        <path class="anim-connection" d="M 800 235 V 250" stroke="#BD93F9" style="animation-delay: 2.2s;" />
+        <path class="anim-connection" d="M 800 290 V 315" stroke="#BD93F9" style="animation-delay: 2.4s;" />
+        <path class="anim-connection" d="M 800 360 V 380" stroke="#BD93F9" style="animation-delay: 2.6s;" />
+
+        <!-- Merge Paths (Convergence) -->
+        <path class="anim-connection" d="M 200 420 V 480 H 500 V 540" stroke-width="3" style="animation-delay: 2.8s;" />
+        <path class="anim-connection" d="M 500 420 V 540" stroke-width="3" style="animation-delay: 2.8s;" />
+        <path class="anim-connection" d="M 800 420 V 480 H 500" stroke-width="3" style="animation-delay: 2.8s;" />
+
+        <!-- Final Flow -->
+        <path class="anim-connection" d="M 500 600 V 650" stroke-width="3" style="animation-delay: 3.3s;" />
+      </g>
+
+      <!-- Input Node -->
+      <g class="node anim-node" transform="translate(375, 40)" data-desc="Raw Input Data: Contains date columns, unique store identifiers, SKU items, and units sold. Totaling 913,000 rows." style="animation-delay: 0s;">
+        <rect width="250" height="55" rx="6" fill="#1E1E2E" stroke="#FF6B35" stroke-width="2.5" filter="url(#glow-orange)" />
+        <text x="125" y="25" fill="#F8F8F2" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">Raw Data Source</text>
+        <text x="125" y="42" fill="#00D4FF" font-family="monospace" font-size="10.5" text-anchor="middle">[ date | store | item | sales ]</text>
+      </g>
+
+      <!-- COLUMN A: Calendar Features (Cyan) -->
+      <!-- A1 -->
+      <g class="node anim-node" transform="translate(100, 130)" data-desc="Date Column: Raw timestamp. Used as the anchor to generate cyclical calendar features." style="animation-delay: 0.1s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="12" text-anchor="middle">raw date column</text>
+      </g>
+      <!-- A2 -->
+      <g class="node anim-node" transform="translate(100, 190)" data-desc="dayofweek: Maps date into integer days from 0 (Monday) to 6 (Sunday) using standard pandas datetimelike properties." style="animation-delay: 0.3s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ dayofweek (0-6)</text>
+      </g>
+      <!-- A3 -->
+      <g class="node anim-node" transform="translate(100, 250)" data-desc="month_sin &amp; month_cos: Encodes monthly seasonality. Ensures the model understands December and January are next to each other." style="animation-delay: 0.5s;">
+        <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+        <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ month_sin/cos</text>
+        <text x="100" y="34" fill="#00D4FF" font-family="monospace" font-size="9" text-anchor="middle">sin(2π * m / 12)</text>
+      </g>
+      <!-- A4 -->
+      <g class="node anim-node" transform="translate(100, 315)" data-desc="dayofweek_sin &amp; dayofweek_cos: Cyclical daily seasonality features. Resolves weekly patterns with smooth continuous values." style="animation-delay: 0.7s;">
+        <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+        <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ dayofweek_sin/cos</text>
+        <text x="100" y="34" fill="#00D4FF" font-family="monospace" font-size="9" text-anchor="middle">sin(2π * d / 7)</text>
+      </g>
+      <!-- A5 -->
+      <g class="node anim-node" transform="translate(100, 380)" data-desc="is_weekend: Binary flag (1 if dayofweek is 5 or 6, else 0). Essential indicator for retail spikes on weekends." style="animation-delay: 0.9s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#00D4FF" stroke-width="1.5" filter="url(#glow-cyan)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ is_weekend (bool)</text>
+      </g>
+      <text class="anim-node" x="200" y="445" fill="#00D4FF" font-family="sans-serif" font-size="10.5" text-anchor="middle" font-style="italic" style="animation-delay: 1.0s;">"Circular encoding so Dec &amp; Jan feel close"</text>
+
+
+      <!-- COLUMN B: Holiday Proximity (Yellow) -->
+      <!-- B1 -->
+      <g class="node anim-node" transform="translate(400, 130)" data-desc="Date Column: Raw dates extracted from transactions." style="animation-delay: 0.9s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="12" text-anchor="middle">date column</text>
+      </g>
+      <!-- B2 -->
+      <g class="node anim-node" transform="translate(400, 190)" data-desc="Unique Dates: Filters down 913,000 transaction rows to just 1,826 unique calendars to avoid redundant row calculations." style="animation-delay: 1.1s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ unique (1,826 rows)</text>
+      </g>
+      <!-- B3 -->
+      <g class="node anim-node" transform="translate(400, 250)" data-desc="Min Distance: Computes absolute delta days between each unique transaction date and the closest federal US holiday." style="animation-delay: 1.3s;">
+        <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+        <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ min distance (days)</text>
+        <text x="100" y="34" fill="#FFB86C" font-family="monospace" font-size="9" text-anchor="middle">calculate on 1.8k rows</text>
+      </g>
+      <!-- B4 -->
+      <g class="node anim-node" transform="translate(400, 315)" data-desc="Dict mapping: Maps unique date distance list back onto the original 913,000 row DataFrame using pandas Series .map()." style="animation-delay: 1.5s;">
+        <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+        <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ map to 913k rows</text>
+        <text x="100" y="34" fill="#FFB86C" font-family="monospace" font-size="9" text-anchor="middle">date dict map lookup</text>
+      </g>
+      <!-- B5 -->
+      <g class="node anim-node" transform="translate(400, 380)" data-desc="Clip days: Restricts distance values to a max of 7. The model only needs to know holiday proximity within a one-week buffer." style="animation-delay: 1.7s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#FFB86C" stroke-width="1.5" filter="url(#glow-yellow)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ clip at 7 days max</text>
+      </g>
+      <!-- Speedup Note -->
+      <g class="node anim-node" transform="translate(380, 435)" data-desc="Optimization: Distance calculations on 913k rows using raw .apply() takes 2.5 minutes. Reducing to unique dates and mapping takes under 0.23 seconds!" style="animation-delay: 1.8s;">
+        <rect width="240" height="40" rx="4" fill="#0D1117" stroke="#FFB86C" stroke-width="1" stroke-dasharray="3 3" />
+        <text x="120" y="16" fill="#F8F8F2" font-family="monospace" font-size="9.5" text-anchor="middle">BEFORE: 913k rows * apply() = 2.5m</text>
+        <text x="120" y="30" fill="#39D353" font-family="monospace" font-size="9.5" text-anchor="middle">AFTER:  1.8k unique + map = 0.23s</text>
+      </g>
+      <text class="anim-node" x="500" y="490" fill="#FFB86C" font-family="sans-serif" font-size="10.5" text-anchor="middle" font-style="italic" style="animation-delay: 1.9s;">"900× speedup using dict lookup"</text>
+
+
+      <!-- COLUMN C: Lag & Rolling Features (Purple) -->
+      <!-- C1 -->
+      <g class="node anim-node" transform="translate(700, 130)" data-desc="Sales Column: Historical unit volumes. Used to construct temporal lag indicators." style="animation-delay: 1.7s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="12" text-anchor="middle">sales column</text>
+      </g>
+      <!-- C2: Leakage Guard (Red, Glowing/Flashing) -->
+      <g class="node anim-node" transform="translate(700, 190)" data-desc="LEAKAGE GUARD: Crucial .shift(1) offset. Shifting ensures prediction steps do not utilize contemporaneous target values, which causes model leakage." style="animation-delay: 1.9s;">
+        <rect class="leakage-guard" width="200" height="45" rx="5" fill="#1E1E2E" stroke="#FF5555" stroke-width="2" filter="url(#glow-red)" />
+        <text x="100" y="20" fill="#FF5555" font-family="monospace" font-size="11" font-weight="bold" text-anchor="middle">⚠️ .shift(1)</text>
+        <text x="100" y="35" fill="#FF5555" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">LEAKAGE GUARD</text>
+      </g>
+      <!-- C3 -->
+      <g class="node anim-node" transform="translate(700, 250)" data-desc="Lags: Extracts shifted demand values for 1 day, 7 days (weekly patterns), and 365 days (yearly seasonality)." style="animation-delay: 2.1s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11.5" text-anchor="middle">→ lag_1, lag_7, lag_365</text>
+      </g>
+      <!-- C4 -->
+      <g class="node anim-node" transform="translate(700, 315)" data-desc="Rolling Averages: Standard rolling window means and standard deviations computed on shifted sales. Smooths high-frequency variance." style="animation-delay: 2.3s;">
+        <rect width="200" height="45" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+        <text x="100" y="20" fill="#F8F8F2" font-family="monospace" font-size="11" text-anchor="middle">→ rolling(30).mean()</text>
+        <text x="100" y="34" fill="#BD93F9" font-family="monospace" font-size="11" text-anchor="middle">→ rolling(90).std()</text>
+      </g>
+      <!-- C5 -->
+      <g class="node anim-node" transform="translate(700, 380)" data-desc="Expanding Mean: Progressive average of sales cumulative history. Captures baseline structural demand change." style="animation-delay: 2.5s;">
+        <rect width="200" height="40" rx="5" fill="#1E1E2E" stroke="#BD93F9" stroke-width="1.5" filter="url(#glow-purple)" />
+        <text x="100" y="24" fill="#F8F8F2" font-family="monospace" font-size="11" text-anchor="middle">→ expanding().mean()</text>
+      </g>
+      <text class="anim-node" x="800" y="445" fill="#BD93F9" font-family="sans-serif" font-size="10.5" text-anchor="middle" font-style="italic" style="animation-delay: 2.6s;">"shift(1) is non-negotiable"</text>
+
+
+      <!-- MERGED NODES -->
+      <!-- Final Feature Matrix -->
+      <g class="node anim-node" transform="translate(250, 540)" data-desc="Concatenation: Joins the outputs of tracks A, B, and C along columns. 913,000 rows with 15 engineered features." style="animation-delay: 3.1s;">
+        <rect width="500" height="60" rx="8" fill="#1E1E2E" stroke="#FF6B35" stroke-width="2.5" filter="url(#glow-orange)" />
+        <text x="250" y="27" fill="#F8F8F2" font-family="monospace" font-size="14.5" font-weight="bold" text-anchor="middle">Final Feature Matrix</text>
+        <text x="250" y="45" fill="#FF6B35" font-family="monospace" font-size="11.5" text-anchor="middle">913,000 rows × 15 engineered columns</text>
+      </g>
+
+      <!-- Output File (Cyan, Dashed) -->
+      <g class="node anim-node" transform="translate(250, 650)" data-desc="Disk Output: Compresses features to a 271MB CSV. Picked up by model.py to fit LightGBM regressor." style="animation-delay: 3.6s;">
+        <rect width="500" height="60" rx="8" fill="#1E1E2E" stroke="#00D4FF" stroke-width="2.5" stroke-dasharray="6 4" />
+        <text x="250" y="27" fill="#F8F8F2" font-family="monospace" font-size="14" font-weight="bold" text-anchor="middle">data/processed/features.csv</text>
+        <text x="250" y="45" fill="#00D4FF" font-family="monospace" font-size="11.5" text-anchor="middle">271MB written to disk (Ready for LightGBM)</text>
+      </g>
+    </svg>
+  </div>
+
+  <script>
+    const nodes = document.querySelectorAll('.node');
+    const tooltip = document.getElementById('tooltip');
+
+    nodes.forEach(node => {
+      node.addEventListener('mousemove', (e) => {
+        const desc = node.getAttribute('data-desc');
+        tooltip.textContent = desc;
+        tooltip.style.opacity = '1';
+        tooltip.style.left = (e.pageX - 100) + 'px';
+        tooltip.style.top = (e.pageY - 100) + 'px';
+      });
+
+      node.addEventListener('mouseleave', () => {
+        tooltip.style.opacity = '0';
+      });
+    });
+  </script>
+</body>
+</html>
