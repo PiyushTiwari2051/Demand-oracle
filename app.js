@@ -36,8 +36,6 @@ const infoUnderstockText = document.getElementById('info-understock');
 const infoOverstockText = document.getElementById('info-overstock');
 
 const simSavingsText = document.getElementById('sim-savings');
-const simBaseTotalText = document.getElementById('sim-base-total');
-const simModelTotalText = document.getElementById('sim-model-total');
 
 const simBaseStockoutText = document.getElementById('sim-base-stockout');
 const simBaseHoldingText = document.getElementById('sim-base-holding');
@@ -47,8 +45,11 @@ const simModelStockoutText = document.getElementById('sim-model-stockout');
 const simModelHoldingText = document.getElementById('sim-model-holding');
 const simModelCostTotalText = document.getElementById('sim-model-cost-total');
 
+const consoleLogs = document.getElementById('console-logs');
+
 // Initial Setup
 document.addEventListener('DOMContentLoaded', async () => {
+    addLogLine('System boot sequence initiated.', 'info');
     setupTabs();
     await loadData();
     setupSelectors();
@@ -58,8 +59,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Tab Switching Logic
 function setupTabs() {
-    const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.tab-content');
+    const navItems = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.tab-section');
     
     navItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -69,21 +70,42 @@ function setupTabs() {
             item.classList.add('active');
             const targetTab = item.getAttribute('data-tab');
             document.getElementById(`tab-${targetTab}`).classList.add('active');
+            addLogLine(`Navigated to section: [${targetTab.toUpperCase()}]`, 'info');
         });
     });
+}
+
+// Log utility
+function addLogLine(message, type = 'info') {
+    const time = new Date().toLocaleTimeString();
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    
+    if (type === 'success') {
+        line.innerHTML = `[${time}] <span class="text-green">${message}</span>`;
+    } else if (type === 'warning') {
+        line.innerHTML = `[${time}] <span class="text-yellow">${message}</span>`;
+    } else {
+        line.innerHTML = `[${time}] <span>${message}</span>`;
+    }
+    
+    consoleLogs.appendChild(line);
+    consoleLogs.scrollTop = consoleLogs.scrollHeight;
 }
 
 // Load JSON data
 async function loadData() {
     try {
+        addLogLine('Requesting telemetry data bundle from database...', 'info');
         const response = await fetch('dashboard_data.json');
         dashboardData = await response.json();
         
+        addLogLine('JSON telemetry data package parsed successfully.', 'success');
         // Populate backtest table
         populateBacktestTable(dashboardData.backtests);
     } catch (error) {
+        addLogLine('CRITICAL ERROR: Failed to load data package.', 'warning');
         console.error('Error loading dashboard data:', error);
-        alert('Failed to load dashboard data. Verify dashboard_data.json exists.');
     }
 }
 
@@ -93,7 +115,7 @@ function setupSelectors() {
     for (let s = 1; s <= 10; s++) {
         const opt = document.createElement('option');
         opt.value = s;
-        opt.textContent = `Store Location ${s}`;
+        opt.textContent = `STORE_${s.toString().padStart(2, '0')}`;
         storeSelect.appendChild(opt);
     }
     
@@ -101,12 +123,18 @@ function setupSelectors() {
     for (let i = 1; i <= 50; i++) {
         const opt = document.createElement('option');
         opt.value = i;
-        opt.textContent = `Product Item ${i}`;
+        opt.textContent = `ITEM_${i.toString().padStart(2, '0')}`;
         itemSelect.appendChild(opt);
     }
     
-    storeSelect.addEventListener('change', updateDashboard);
-    itemSelect.addEventListener('change', updateDashboard);
+    storeSelect.addEventListener('change', () => {
+        addLogLine(`Store selection modified to: Store ${storeSelect.value}`, 'info');
+        updateDashboard();
+    });
+    itemSelect.addEventListener('change', () => {
+        addLogLine(`Item selection modified to: Item ${itemSelect.value}`, 'info');
+        updateDashboard();
+    });
 }
 
 // Populate Backtest Results
@@ -118,7 +146,7 @@ function populateBacktestTable(backtests) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="mono">${row.cutoff}</td>
-            <td>${row.test_days} Days</td>
+            <td>${row.test_days} DAYS</td>
             <td class="mono">${row.mape_baseline.toFixed(2)}%</td>
             <td class="mono text-green">${row.mape_model.toFixed(2)}%</td>
             <td class="mono text-green font-bold">+${row.improvement_pct.toFixed(1)}%</td>
@@ -138,19 +166,21 @@ function updateDashboard() {
     
     if (!skuData) return;
     
-    // Calculate individual SKU MAPE/RMSE
+    // Calculate WAPE for SKU
     const metrics = calculateSkuMetrics(skuData.y, skuData.p, skuData.b);
-    skuMapeText.textContent = `${metrics.modelMape.toFixed(1)}%`;
-    skuMapeText.className = metrics.modelMape < metrics.baselineMape ? 'stat-value text-green' : 'stat-value text-red';
+    skuMapeText.textContent = `${metrics.modelMape.toFixed(2)}%`;
+    skuMapeText.className = metrics.modelMape < metrics.baselineMape ? 'txt-val text-green' : 'txt-val text-red';
     
-    // Calculate and render financial inventory impact for this SKU
+    // Update local costs
     updateSkuInventoryCosts(skuData.y, skuData.p, skuData.b);
     
     // Render Chart
     renderForecastChart(dashboardData.dates, skuData);
+    
+    addLogLine(`Evaluated Store ${store}, Item ${item} — WAPE: ${metrics.modelMape.toFixed(2)}% (Naive: ${metrics.baselineMape.toFixed(2)}%)`, 'success');
 }
 
-// Helper: Calculate MAPE for single SKU
+// Helper: Calculate WAPE
 function calculateSkuMetrics(actual, forecast, baseline) {
     let sumAbsErrModel = 0;
     let sumAbsErrBase = 0;
@@ -162,14 +192,13 @@ function calculateSkuMetrics(actual, forecast, baseline) {
         sumActual += actual[i];
     }
     
-    // We use WAPE (weighted MAPE) for safety against zero actual values
     return {
         modelMape: sumActual > 0 ? (sumAbsErrModel / sumActual) * 100 : 0,
         baselineMape: sumActual > 0 ? (sumAbsErrBase / sumActual) * 100 : 0
     };
 }
 
-// Calculate and render SKU specific inventory costs
+// Calculate SKU specific inventory costs
 function updateSkuInventoryCosts(actual, forecast, baseline) {
     const cost = parseFloat(simCostSlider.value);
     const price = parseFloat(simPriceSlider.value);
@@ -182,13 +211,13 @@ function updateSkuInventoryCosts(actual, forecast, baseline) {
     const savings = baseImpact.totalCost - modelImpact.totalCost;
     
     expSavingsText.textContent = formatCurrency(savings);
-    expSavingsText.className = savings >= 0 ? 'text-green' : 'text-red';
+    expSavingsText.className = savings >= 0 ? 'panel-body font-large text-green' : 'panel-body font-large text-red';
     
     expStockoutText.textContent = formatCurrency(modelImpact.stockoutCost);
-    expStockoutUnitsText.textContent = `${modelImpact.understocked.toLocaleString()} Units Shortage`;
+    expStockoutUnitsText.textContent = `[${modelImpact.understocked.toLocaleString()} Units Shortage]`;
     
     expOverstockText.textContent = formatCurrency(modelImpact.overstockCost);
-    expOverstockUnitsText.textContent = `${modelImpact.overstocked.toLocaleString()} Units Surplus`;
+    expOverstockUnitsText.textContent = `[${modelImpact.overstocked.toLocaleString()} Units Surplus]`;
 }
 
 // Helper: Inventory calculation
@@ -225,7 +254,6 @@ function renderForecastChart(dates, skuData) {
         currentChart.destroy();
     }
     
-    // Format dates to look prettier (e.g. Jul 15)
     const formattedDates = dates.map(d => {
         const dateObj = new Date(d);
         return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -248,35 +276,35 @@ function renderForecastChart(dates, skuData) {
                     label: '90% Prediction Interval',
                     data: skuData.u,
                     borderColor: 'transparent',
-                    backgroundColor: 'rgba(46, 134, 171, 0.12)',
+                    backgroundColor: 'rgba(88, 166, 255, 0.08)',
                     pointRadius: 0,
-                    fill: 0, // Fill down to lower bound
+                    fill: 0,
                     tension: 0
                 },
                 {
                     label: 'Actual Sales',
                     data: skuData.y,
-                    borderColor: '#2e86ab',
+                    borderColor: '#2ea043',
                     borderWidth: 1.5,
-                    pointRadius: 1,
-                    pointHoverRadius: 4,
-                    tension: 0.15
+                    pointRadius: 0.5,
+                    pointHoverRadius: 3,
+                    tension: 0.1
                 },
                 {
                     label: 'LightGBM Forecast',
                     data: skuData.p,
-                    borderColor: '#e84855',
-                    borderWidth: 1.8,
-                    pointRadius: 1,
-                    pointHoverRadius: 4,
-                    borderDash: [5, 4],
-                    tension: 0.15
+                    borderColor: '#f85149',
+                    borderWidth: 1.5,
+                    pointRadius: 0.5,
+                    pointHoverRadius: 3,
+                    borderDash: [4, 3],
+                    tension: 0.1
                 },
                 {
                     label: 'Naive Baseline',
                     data: skuData.b,
-                    borderColor: '#f4a261',
-                    borderWidth: 1.1,
+                    borderColor: '#db6d28',
+                    borderWidth: 1,
                     pointRadius: 0,
                     borderDash: [2, 2],
                     tension: 0.1
@@ -286,48 +314,49 @@ function renderForecastChart(dates, skuData) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 0 // Disable animation to match minimalist terminal aesthetics
+            },
             interaction: {
                 mode: 'index',
                 intersect: false
             },
             plugins: {
                 legend: {
-                    display: false // We use our own legend header
+                    display: false
                 },
                 tooltip: {
-                    backgroundColor: '#151c2f',
-                    titleColor: '#f3f4f6',
-                    bodyColor: '#9ca3af',
-                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: '#0d1117',
+                    titleColor: '#f0f6fc',
+                    bodyColor: '#8b949e',
+                    borderColor: '#30363d',
                     borderWidth: 1,
-                    padding: 10,
-                    bodyFont: {
-                        family: 'Outfit'
-                    },
-                    titleFont: {
-                        family: 'Outfit',
-                        weight: 'bold'
-                    }
+                    cornerRadius: 0,
+                    padding: 8,
+                    bodyFont: { family: 'JetBrains Mono', size: 11 },
+                    titleFont: { family: 'JetBrains Mono', size: 11, weight: 'bold' }
                 }
             },
             scales: {
                 x: {
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.03)'
+                        color: '#21262d',
+                        tickColor: '#30363d'
                     },
                     ticks: {
-                        color: '#6b7280',
-                        font: { family: 'Outfit', size: 10 },
+                        color: '#8b949e',
+                        font: { family: 'JetBrains Mono', size: 9 },
                         maxTicksLimit: 12
                     }
                 },
                 y: {
                     grid: {
-                        color: 'rgba(255, 255, 255, 0.03)'
+                        color: '#21262d',
+                        tickColor: '#30363d'
                     },
                     ticks: {
-                        color: '#6b7280',
-                        font: { family: 'Outfit', size: 10 }
+                        color: '#8b949e',
+                        font: { family: 'JetBrains Mono', size: 9 }
                     }
                 }
             }
@@ -343,29 +372,42 @@ function setupSimulator() {
         const holdingRate = parseFloat(simHoldingSlider.value) / 100;
         const penalty = parseFloat(simPenaltySlider.value);
         
-        // Update slider texts
+        // Update slider labels
         valCostText.textContent = `₹${cost}`;
         valPriceText.textContent = `₹${price}`;
         valHoldingText.textContent = `${simHoldingSlider.value}%`;
         valPenaltyText.textContent = `${penalty.toFixed(1)}x`;
         
-        // Update cost info box
+        // Update helper box calculations
         infoUnderstockText.textContent = `₹${(price * penalty).toFixed(2)}`;
         infoOverstockText.textContent = `₹${(cost * holdingRate / 365).toFixed(4)}`;
         
         // Run Global Simulation
         runGlobalSimulation(cost, price, holdingRate, penalty);
         
-        // Run SKU-specific update in explorer
+        // Update local explore tab
         updateDashboard();
     };
     
-    simCostSlider.addEventListener('input', handleSliderInput);
-    simPriceSlider.addEventListener('input', handleSliderInput);
-    simHoldingSlider.addEventListener('input', handleSliderInput);
-    simPenaltySlider.addEventListener('input', handleSliderInput);
+    // Attaching listeners
+    simCostSlider.addEventListener('input', () => {
+        handleSliderInput();
+        addLogLine(`Simulator adjusted: Unit Cost = ₹${simCostSlider.value}`, 'info');
+    });
+    simPriceSlider.addEventListener('input', () => {
+        handleSliderInput();
+        addLogLine(`Simulator adjusted: Price = ₹${simPriceSlider.value}`, 'info');
+    });
+    simHoldingSlider.addEventListener('input', () => {
+        handleSliderInput();
+        addLogLine(`Simulator adjusted: Holding Cost = ${simHoldingSlider.value}%`, 'info');
+    });
+    simPenaltySlider.addEventListener('input', () => {
+        handleSliderInput();
+        addLogLine(`Simulator adjusted: Penalty = ${simPenaltySlider.value}x`, 'info');
+    });
     
-    // Trigger initial values
+    // Trigger initial calculation
     handleSliderInput();
 }
 
@@ -390,8 +432,6 @@ function runGlobalSimulation(cost, price, holdingRate, penalty) {
     
     // Update texts
     simSavingsText.textContent = formatCurrency(savings);
-    simBaseTotalText.textContent = formatCompactCurrency(baseTotal);
-    simModelTotalText.textContent = formatCompactCurrency(modelTotal);
     
     simBaseStockoutText.textContent = formatCompactCurrency(baseStockout);
     simBaseHoldingText.textContent = formatCompactCurrency(baseHolding);
@@ -411,9 +451,9 @@ function formatCurrency(value) {
 }
 
 function formatCompactCurrency(value) {
-    if (value >= 10000000) { // 1 Crore
+    if (value >= 10000000) { // Crore
         return '₹' + (value / 10000000).toFixed(2) + ' Cr';
-    } else if (value >= 100000) { // 1 Lakh
+    } else if (value >= 100000) { // Lakh
         return '₹' + (value / 100000).toFixed(2) + ' L';
     } else {
         return '₹' + value.toLocaleString('en-IN', { maximumFractionDigits: 0 });
