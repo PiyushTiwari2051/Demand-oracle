@@ -1,0 +1,6 @@
+Metric,Baseline (Seasonal Naive),LightGBM
+Understocked Units,111658.0,108016.0
+Overstocked Units,192542.0,108244.0
+Stockout Cost,41871750.0,40506362.06
+Overstock Cost,19781.71,11120.96
+Total Inventory Cost,41891531.71,40517483.03
