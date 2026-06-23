@@ -1,23 +1,31 @@
-# Demand-Oracle
-
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3500&pause=800&color=2E86AB&center=true&vCenter=true&width=700&lines=Solving+the+multi-million+rupee+inventory+problem;Curing+data+leakage+with+strict+chronological+split;LightGBM+forecasting+engine+running+at+3am;Vectorized+pandas+code+operating+at+C-speed" alt="Demand-Oracle Title Engine" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=0D1117,1a1a2e,16213e&height=200&section=header&text=DEMAND%20ORACLE&fontSize=50&fontAlignY=45" alt="Header Banner" />
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" alt="Divider Wave" />
+  <img src="https://img.shields.io/badge/DEMAND__ORACLE-v1.0-FF6B35?style=for-the-badge&labelColor=0D1117&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiIHdpZHRoPSIyNCIgZGVpZ2h0PSIyNCI+PHBhdGggZD0iTTE5IDNINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMlY1YzAtMS4xLS45LTItMi0yek05IDE3SDd2LTdoMnY3em00IDBoLTJWN2gydjEwek0xNyAxN2gtMnYtNGgydjR6Ii8+PC9zdmc+" alt="Project Logo Badge" />
 </p>
 
-```text
-  ____                                    _          ___                     _      
- |  _ \  ___ _ __ ___   __ _ _ __   __| |        / _ \ _ __ __ _  ___| | ___ 
- | | | |/ _ \ '_ ` _ \ / _` | '_ \ / _` |_____  | | | | '__/ _` |/ __| |/ _ \
- | |_| |  __/ | | | | | (_| | | | | (_| |_____| | |_| | | | (_| | (__| |  __/
- |____/ \___|_| |_| |_|\__,_|_| |_|\__,_|        \___/|_|  \__,_|\___|_|\___|
-                                                                             
-```
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&size=18&duration=4000&pause=1000&color=F8F8F2&center=true&vCenter=true&width=650&lines=500+SKUs.+one+model.+7+seconds+flat.;saved+%E2%82%B913.7L+in+a+single+test+run.;data+leakage+is+a+crime.+we+don't+commit+it.;built+this+at+3am.+it+works+in+production.;LightGBM+because+Prophet+was+too+slow+and+I+got+annoyed." alt="Typing Tagline" />
+</p>
 
----
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&labelColor=0D1117&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/LightGBM-Orange-FF6B35?style=flat-square&labelColor=0D1117" />
+  <img src="https://img.shields.io/badge/Pandas-Dataframe-150458?style=flat-square&labelColor=0D1117&logo=pandas&logoColor=white" />
+  <img src="https://img.shields.io/badge/NumPy-Array-013243?style=flat-square&labelColor=0D1117&logo=numpy&logoColor=white" />
+  <img src="https://img.shields.io/badge/Statsmodels-TSA-4B8BBE?style=flat-square&labelColor=0D1117" />
+  <img src="https://img.shields.io/badge/Matplotlib-Plotting-11557c?style=flat-square&labelColor=0D1117" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/%E2%82%B913.7L_Saved-brightgreen?style=for-the-badge&labelColor=0D1117" />
+  <img src="https://img.shields.io/badge/900x_Speedup-brightgreen?style=for-the-badge&labelColor=0D1117" />
+  <img src="https://img.shields.io/badge/90%25_PI_Coverage-brightgreen?style=for-the-badge&labelColor=0D1117" />
+</p>
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
 ## 🛠️ What This Actually Does
 
@@ -25,7 +33,7 @@ Look, retail demand forecasting is usually a mess of generic ARIMA models or ove
 
 Instead of just printing a boring MAPE score, it translates those predictions into actual inventory holding and stockout costs so you know exactly how much cash you're saving.
 
----
+<img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 📐 System Architecture
 
@@ -71,7 +79,7 @@ This is how the modules interact. Every box represents a modular Python file in 
   └────────────────────────────────────────────────────────┘
 ```
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
 ## 🛡️ Chronological Split & Leakage Guard
 
@@ -91,7 +99,7 @@ We enforce a strict chronological boundary. Future data never leaks into the pas
                                                 [ Cutoff: 2017-07-01 ]
 ```
 
----
+<img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
 ## 🧮 The Core Mathematics
 
@@ -120,7 +128,7 @@ Where:
 
 \[\left[ \text{Percentile}_{5}(\{\hat{y}_{t, b}^*\}_{b=1}^{B}), \, \text{Percentile}_{95}(\{\hat{y}_{t, b}^*\}_{b=1}^{B}) \right]\]
 
----
+<img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 🎙️ Developer Rants (Why this is built this way)
 
@@ -144,7 +152,7 @@ df['days_to_holiday'] = df['date'].map(date_to_days).clip(upper=7)
 ```
 This brought the execution time down to **0.23 seconds**. That is a **900x speedup** with 4 lines of clean python.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
 ## 📓 Walk-Forward Backtesting (Historical Simulation)
 
@@ -158,7 +166,7 @@ Instead of a single test split, we simulate historical deployments across 4 cuto
                        └────────── Train Set ──────────────┘    └─ Test ─┘
 ```
 
----
+<img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
 ## 🚀 How the Bootstrap Algorithm Works
 
@@ -187,7 +195,7 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
   └─────────────────────────────────────────────────────────────────────────┘
 ```
 
----
+<img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 🛠️ The Tech Stack (and why I chose it)
 
@@ -199,7 +207,7 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 | **Statsmodels** | Used for multiplicative seasonal decomposition to extract trend and residuals. |
 | **Matplotlib** | Clean, minimalist visual plots (no default plotting formats). |
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
 ## 📦 Directory Structure
 
@@ -233,7 +241,14 @@ demand_forecasting/
 └── main.py                     # Coordinates and executes the entire pipeline
 ```
 
----
+*   Refer to [data_loader.py](file:///c:/Users/HP/Downloads/Python%20Project/src/data_loader.py) for the data ingestion logic.
+*   Refer to [features.py](file:///c:/Users/HP/Downloads/Python%20Project/src/features.py) for structural feature engineering functions.
+*   Refer to [model.py](file:///c:/Users/HP/Downloads/Python%20Project/src/model.py) for the core training setup.
+*   Refer to [evaluate.py](file:///c:/Users/HP/Downloads/Python%20Project/src/evaluate.py) for time-series backtest folds.
+*   Refer to [inventory.py](file:///c:/Users/HP/Downloads/Python%20Project/src/inventory.py) for calculations on stock cost impact.
+*   Refer to [main.py](file:///c:/Users/HP/Downloads/Python%20Project/main.py) for the pipeline runner.
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
 ## ⚡ Setup & Run
 
@@ -257,7 +272,7 @@ Launch the interactive notebooks:
 jupyter notebook
 ```
 
----
+<img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 🗺️ Roadmap
 
@@ -268,7 +283,7 @@ jupyter notebook
 - [ ] Incorporate supplier lead-time parameters into intervals.
 - [ ] Deploy Streamlit UI log-uploader dashboard.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
 <details>
 <summary>🕵️‍♂️ Secret Easter Egg</summary>
