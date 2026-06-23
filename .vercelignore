@@ -1,0 +1,23 @@
+# Exclude python environments and packages
+venv/
+.venv/
+node_modules/
+
+# Exclude raw and processed data
+data/
+outputs/results/prediction_intervals.csv
+outputs/results/test_predictions.csv
+
+# Exclude development notebooks and scratch scripts
+notebooks/
+scratch/
+
+# Exclude python source files (not needed for static vercel app)
+src/
+main.py
+requirements.txt
+
+# Exclude git repository metadata
+.git/
+.gitignore
+.vercel/

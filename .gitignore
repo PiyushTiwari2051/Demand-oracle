@@ -6,3 +6,5 @@ src/__pycache__/
 scratch/
 outputs/results/prediction_intervals.csv
 outputs/results/test_predictions.csv
+
+.vercel

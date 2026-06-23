@@ -1,0 +1,29 @@
+{
+  "cleanUrls": true,
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "index.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "app.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "dashboard_data.json",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "outputs/plots/*.png",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "outputs/results/backtest_results.csv",
+      "use": "@vercel/static"
+    }
+  ]
+}

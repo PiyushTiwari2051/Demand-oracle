@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demand-Oracle — Enterprise Inventory Forecasting</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="index.css">
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Enterprise demand forecasting and inventory optimization pipeline using LightGBM machine learning with walk-forward backtesting and financial impact translation.">
+    <meta name="keywords" content="demand forecasting, lightgbm, machine learning, inventory management, supply chain, predictive analytics">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <div class="logo-icon">🔮</div>
+                <div class="logo-text">
+                    <h1>Demand-Oracle</h1>
+                    <span>ML Forecasting System</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="explorer">
+                    <span class="nav-icon">📊</span> Explorer
+                </button>
+                <button class="nav-item" data-tab="simulator">
+                    <span class="nav-icon">💸</span> Impact Simulator
+                </button>
+                <button class="nav-item" data-tab="backtest">
+                    <span class="nav-icon">🛡️</span> Backtests
+                </button>
+                <button class="nav-item" data-tab="eda">
+                    <span class="nav-icon">📈</span> EDA Patterns
+                </button>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="pulse"></span> Connected to Engine
+                </div>
+                <div class="git-link">
+                    <a href="https://github.com/PiyushTiwari2051/Demand-oracle" target="_blank" rel="noopener noreferrer">
+                        <svg class="icon-git" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg> github/Demand-oracle
+                    </a>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-title">
+                    <h2>Inventory Demand Oracle</h2>
+                    <p class="subtitle">Real-time prediction intervals and optimized stocking decision support</p>
+                </div>
+                <div class="system-meta">
+                    <span class="meta-tag">LightGBM v4.3.0</span>
+                    <span class="meta-tag">10 Stores / 50 Items</span>
+                </div>
+            </header>
+            
+            <!-- Dashboard Tab: Explorer -->
+            <section id="tab-explorer" class="tab-content active">
+                <div class="grid-controls">
+                    <div class="control-card">
+                        <label for="store-select">🏪 Store Location</label>
+                        <select id="store-select" class="styled-select"></select>
+                    </div>
+                    <div class="control-card">
+                        <label for="item-select">📦 Product Item</label>
+                        <select id="item-select" class="styled-select"></select>
+                    </div>
+                    <div class="control-card summary-stat-card">
+                        <div>
+                            <span class="stat-label">Model MAPE</span>
+                            <span class="stat-value text-green" id="sku-mape">10.1%</span>
+                        </div>
+                        <div class="stat-badge">vs 13.9% Naive</div>
+                    </div>
+                </div>
+                
+                <div class="main-chart-card">
+                    <div class="card-header">
+                        <h3>Interactive Demand Forecast Explorer</h3>
+                        <div class="legend-indicators">
+                            <span class="legend-item"><span class="dot actual"></span>Actual Sales</span>
+                            <span class="legend-item"><span class="dot model"></span>LightGBM Forecast</span>
+                            <span class="legend-item"><span class="dot interval"></span>90% Prediction Interval</span>
+                            <span class="legend-item"><span class="dot baseline"></span>Naive Baseline</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="forecastChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Financial Summary Cards -->
+                <div class="grid-three">
+                    <div class="metric-card glass glow-green">
+                        <div class="metric-header">
+                            <span class="metric-title">Financial Savings Added</span>
+                            <span class="metric-icon">💰</span>
+                        </div>
+                        <div class="metric-body">
+                            <h3 id="explorer-savings">INR 1,374,049</h3>
+                            <p class="metric-sub text-green">✨ 3.3% Cost Reduction</p>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card glass">
+                        <div class="metric-header">
+                            <span class="metric-title">Stockout (Understock) Cost</span>
+                            <span class="metric-icon">⚠️</span>
+                        </div>
+                        <div class="metric-body">
+                            <h3 id="explorer-stockout" class="text-red">INR 40,506,362</h3>
+                            <p class="metric-sub" id="explorer-stockout-units">108,016 Units Shortage</p>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card glass">
+                        <div class="metric-header">
+                            <span class="metric-title">Overstock (Carrying) Cost</span>
+                            <span class="metric-icon">🏬</span>
+                        </div>
+                        <div class="metric-body">
+                            <h3 id="explorer-overstock" class="text-yellow">INR 11,121</h3>
+                            <p class="metric-sub" id="explorer-overstock-units">108,244 Units Surplus</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Dashboard Tab: Simulator -->
+            <section id="tab-simulator" class="tab-content">
+                <div class="simulator-layout">
+                    <div class="simulator-controls glass">
+                        <h3>Scenario Parameters</h3>
+                        <p class="section-desc">Adjust the unit financial settings below to instantly simulate supply chain cost savings.</p>
+                        
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-cost">💸 Product Cost (Unit Cost)</label>
+                                <span class="slider-value" id="val-cost">₹150</span>
+                            </div>
+                            <input type="range" id="sim-cost" min="10" max="1000" step="5" value="150" class="styled-slider">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-price">🏷️ Selling Price (Unit Price)</label>
+                                <span class="slider-value" id="val-price">₹250</span>
+                            </div>
+                            <input type="range" id="sim-price" min="20" max="2000" step="10" value="250" class="styled-slider">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-holding">📦 Annual Holding Cost Rate (%)</label>
+                                <span class="slider-value" id="val-holding">25%</span>
+                            </div>
+                            <input type="range" id="sim-holding" min="5" max="100" step="1" value="25" class="styled-slider">
+                        </div>
+                        
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="sim-penalty">⚡ Stockout Penalty Multiplier</label>
+                                <span class="slider-value" id="val-penalty">1.5x</span>
+                            </div>
+                            <input type="range" id="sim-penalty" min="1.0" max="5.0" step="0.1" value="1.5" class="styled-slider">
+                        </div>
+                        
+                        <div class="cost-info-box">
+                            <p><strong>Understocking Penalty (per unit):</strong> <span id="info-understock">₹150</span></p>
+                            <p><strong>Overstocking Cost (per unit/year):</strong> <span id="info-overstock">₹37.50</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="simulator-results">
+                        <div class="metric-card glass glow-green large-card">
+                            <div class="metric-header">
+                                <span class="metric-title">Simulated Financial Value Added</span>
+                                <span class="value-badge">Savings (INR)</span>
+                            </div>
+                            <div class="metric-body">
+                                <h2 id="sim-savings">₹1,374,049</h2>
+                                <p class="metric-sub text-green">Total cost reduced from <span id="sim-base-total">₹41.89M</span> to <span id="sim-model-total">₹40.52M</span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="simulator-comparison">
+                            <div class="comp-col">
+                                <h4>Seasonal Naive (Baseline)</h4>
+                                <div class="comp-row">
+                                    <span>Stockout Cost:</span>
+                                    <strong id="sim-base-stockout">₹41.87M</strong>
+                                </div>
+                                <div class="comp-row">
+                                    <span>Holding Cost:</span>
+                                    <strong id="sim-base-holding">₹19.78K</strong>
+                                </div>
+                                <div class="comp-row border-top">
+                                    <span>Total Cost:</span>
+                                    <strong id="sim-base-cost-total">₹41.89M</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="comp-col highlight">
+                                <h4>LightGBM Engine</h4>
+                                <div class="comp-row">
+                                    <span>Stockout Cost:</span>
+                                    <strong id="sim-model-stockout" class="text-red">₹40.51M</strong>
+                                </div>
+                                <div class="comp-row">
+                                    <span>Holding Cost:</span>
+                                    <strong id="sim-model-holding" class="text-yellow">₹11.12K</strong>
+                                </div>
+                                <div class="comp-row border-top">
+                                    <span>Total Cost:</span>
+                                    <strong id="sim-model-cost-total" class="text-green">₹40.52M</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Dashboard Tab: Backtests -->
+            <section id="tab-backtest" class="tab-content">
+                <div class="intro-card glass">
+                    <h3>🛡️ Walk-Forward Backtesting Evaluation</h3>
+                    <p>To guarantee the model generalizes robustly without data leakage, we simulated 4 consecutive historical deployments spaced exactly 3 months apart. Below are the actual out-of-fold simulation results.</p>
+                </div>
+                
+                <div class="grid-two-unequal">
+                    <div class="table-card glass">
+                        <h3>Backtesting Historical Performance</h3>
+                        <div class="table-container">
+                            <table class="styled-table" id="backtest-table">
+                                <thead>
+                                    <tr>
+                                        <th>Cutoff Date</th>
+                                        <th>Forecast Horizon</th>
+                                        <th>Baseline MAPE</th>
+                                        <th>LightGBM MAPE</th>
+                                        <th>Improvement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated in JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="backtest-insights-card glass">
+                        <h3>Validation Insights</h3>
+                        <div class="insight-bullet">
+                            <div class="bullet-number">1</div>
+                            <div class="bullet-text">
+                                <h4>Stable Accuracy Across Seasons</h4>
+                                <p>Model error remains consistently low (8.9% - 11.8% MAPE) across both high-sales summer peaks and winter demand drops.</p>
+                            </div>
+                        </div>
+                        <div class="insight-bullet">
+                            <div class="bullet-number">2</div>
+                            <div class="bullet-text">
+                                <h4>Consistently Outperforms Naive</h4>
+                                <p>LightGBM outperforms the seasonal naive baseline in every single backtest fold, indicating strong ability to capture complex non-linear combinations of seasonality, lags, and rolling trends.</p>
+                            </div>
+                        </div>
+                        <div class="insight-bullet">
+                            <div class="bullet-number">3</div>
+                            <div class="bullet-text">
+                                <h4>Average Error Reduction</h4>
+                                <p>The model registers an average MAPE reduction of <strong>~26.3%</strong> compared to the baseline, ensuring tight stocking margins.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Dashboard Tab: EDA -->
+            <section id="tab-eda" class="tab-content">
+                <div class="intro-card glass">
+                    <h3>📊 Exploratory Data Analysis & Seasonality Patterns</h3>
+                    <p>The forecasting model leverages robust cyclical and seasonal patterns extracted during the EDA phase. Below are the core historical sales distributions.</p>
+                </div>
+                
+                <div class="eda-grid">
+                    <div class="eda-card glass">
+                        <h4>Daily Sales Distribution (2013-2017)</h4>
+                        <img src="outputs/plots/01_raw_sales_timeseries.png" alt="Sales Over Time" class="eda-img">
+                        <p class="eda-desc">Aggregated sales across all 500 SKUs show a clear yearly seasonality pattern with significant growth year-over-year.</p>
+                    </div>
+                    
+                    <div class="eda-card glass">
+                        <h4>Weekly Demand Fluctuations</h4>
+                        <img src="outputs/plots/02_weekly_pattern.png" alt="Weekly Patterns" class="eda-img">
+                        <p class="eda-desc">Average sales are highest during weekends (Friday through Sunday), highlighting the necessity of calendar-based features.</p>
+                    </div>
+                    
+                    <div class="eda-card glass">
+                        <h4>Monthly (Yearly) Seasonality</h4>
+                        <img src="outputs/plots/03_monthly_pattern.png" alt="Monthly Seasonality" class="eda-img">
+                        <p class="eda-desc">Demand peaks in July and troughs in January, highlighting a strong summer seasonal trend.</p>
+                    </div>
+                    
+                    <div class="eda-card glass">
+                        <h4>Classical Time Series Decomposition</h4>
+                        <img src="outputs/plots/04_decomposition.png" alt="Classical Decomposition" class="eda-img">
+                        <p class="eda-desc">Multiplicative decomposition isolates the upward trend and the highly persistent yearly seasonal waves.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
