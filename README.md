@@ -27,45 +27,48 @@ Instead of just printing a boring MAPE score, it translates those predictions in
 
 ---
 
-## 📐 Whiteboard Architecture (Drawn at 3 AM)
+## 📐 System Architecture
 
-This is how the modules interact. I sketched this out to keep myself sane while writing the pipeline:
+This is how the modules interact. Every box represents a modular Python file in the codebase:
 
 ```text
-                                  +-----------------------+
-                                  |  data/raw/train.csv   |
-                                  +-----------------------+
-                                              |
-                                              | (Reads daily sales)
-                                              v
-                                  +-----------------------+
-                                  |   src/data_loader.py  | <--- Clips sales >= 1 (No MAPE division-by-zero)
-                                  +-----------------------+
-                                              |
-                                              v
-                                  +-----------------------+
-                                  |    src/features.py    | <--- Cyclical encoding, vectorized rollings
-                                  +-----------------------+
-                                              |
-                                              v (Saves features.csv - 271MB)
-                                  +-----------------------+
-                                  |    src/model.py       | <--- Trains LightGBM with Early Stopping
-                                  +-----------------------+
-                                     |                 |
-                (Validation Folds)  /                   \  (Residual Bootstrap)
-                                   v                     v
-                      +-------------------+       +-------------------------------+
-                      |  src/evaluate.py  |       |    Bootstrap Intervals        |
-                      +-------------------+       +-------------------------------+
-                               |                                 |
-                               \                                 /
-                                v                               v
-                       +-------------------------------------------------+
-                       |               src/inventory.py                  |
-                       +-------------------------------------------------+
-                                                |
-                                                v (Translates to INR)
-                                       [ final main.py runner ]
+  ┌────────────────────────────────────────────────────────┐
+  │                   data/raw/train.csv                   │
+  └────────────────────────────────────────────────────────┘
+                              │
+                              ▼  (Loads raw daily sales)
+  ┌────────────────────────────────────────────────────────┐
+  │                   src/data_loader.py                   │
+  └────────────────────────────────────────────────────────┘
+                              │
+                              ▼  (Generates calendar & holiday metrics)
+  ┌────────────────────────────────────────────────────────┐
+  │                     src/features.py                    │
+  └────────────────────────────────────────────────────────┘
+                              │
+                              ├─────────────────────────────► [ data/processed/features.csv ]
+                              │
+                              ▼  (Trains LightGBM / Saves training residuals)
+  ┌────────────────────────────────────────────────────────┐
+  │                      src/model.py                      │
+  └────────────────────────────────────────────────────────┘
+                              │
+             ┌────────────────┴────────────────┐
+             ▼ (Validation folds)              ▼ (Empirical error sampling)
+  ┌─────────────────────┐            ┌───────────────────────────┐
+  │   src/evaluate.py   │            │    Prediction Intervals   │
+  └─────────────────────┘            └───────────────────────────┘
+             │                                     │
+             └────────────────┬────────────────────┘
+                              ▼ (Translates metrics to INR savings)
+  ┌────────────────────────────────────────────────────────┐
+  │                    src/inventory.py                    │
+  └────────────────────────────────────────────────────────┘
+                              │
+                              ▼ (Orchestrates script & saves figures)
+  ┌────────────────────────────────────────────────────────┐
+  │                        main.py                         │
+  └────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -75,14 +78,17 @@ This is how the modules interact. I sketched this out to keep myself sane while 
 We enforce a strict chronological boundary. Future data never leaks into the past. 
 
 ```text
-   Time Axis -------------------------------------------------------------->
-   [====== Training Range (Pre-July 2017) ======] | [=== Evaluation Range ===]
-                                                 |
-   *-- lag_365 (Sales same day last year) --------+--> [Feature Feed]
-   *-- lag_7   (Sales same day last week) --------+--> [Feature Feed]
-   *-- rolling_mean_30 (Shifted 1 day) -----------+--> [Feature Feed]
-                                                 |
-                                         (Cutoff Date: 2017-07-01)
+  Time Axis ──────────────────────────────────────────────────────────────────────────►
+  ┌───────────────────────────────────────────────────────┐   ┌───────────────────────┐
+  │            Training Range (Pre-July 2017)             │   │   Evaluation Range    │
+  │                  (Historical Data)                    │   │    (Out-of-Sample)    │
+  └───────────────────────────────────────────────────────┘   └───────────────────────┘
+  │                                                       │   │
+  ├─► lag_365 (Sales same day last year) ─────────────────┼───┼─► [Feature Feed]
+  ├─► lag_7   (Sales same day last week) ─────────────────┼───┼─► [Feature Feed]
+  └─► rolling_mean_30 (Shifted by 1 day) ─────────────────┼───┼─► [Feature Feed]
+                                                          │
+                                                [ Cutoff: 2017-07-01 ]
 ```
 
 ---
@@ -145,10 +151,40 @@ This brought the execution time down to **0.23 seconds**. That is a **900x speed
 Instead of a single test split, we simulate historical deployments across 4 cutoff points spaced 3 months apart. If the model succeeds across all 4, it is stable.
 
 ```text
-  Fold 1 (2016-07-01): [===== Train (3.5 Years) =====] | [== 90-Day Test ==]
-  Fold 2 (2016-10-01): [======= Train (3.8 Years) =======] | [== 90-Day Test ==]
-  Fold 3 (2017-01-01): [========= Train (4.0 Years) =========] | [== 90-Day Test ==]
-  Fold 4 (2017-04-01): [=========== Train (4.3 Years) ===========] | [== 90-Day Test ==]
+  Fold 1 (2016-07-01): ┌──────────────────────────┐───► ┌──────────┐ (90-Day Test)
+  Fold 2 (2016-10-01): ┌─────────────────────────────┐───► ┌──────────┐ (90-Day Test)
+  Fold 3 (2017-01-01): ┌────────────────────────────────┐───► ┌──────────┐ (90-Day Test)
+  Fold 4 (2017-04-01): ┌───────────────────────────────────┐───► ┌──────────┐ (90-Day Test)
+                       └────────── Train Set ──────────────┘    └─ Test ─┘
+```
+
+---
+
+## 🚀 How the Bootstrap Algorithm Works
+
+Point forecasts are just guesses. We calculate prediction intervals to give inventory managers a range:
+
+```text
+  ┌─────────────────────────┐     ┌─────────────────────────┐
+  │   Actual Sales (y)      │  -  │ Model Predictions (ŷ)   │
+  └─────────────────────────┘     └─────────────────────────┘
+               │                               │
+               └──────────────┬────────────────┘
+                              ▼
+                 ┌─────────────────────────┐
+                 │ Training Residuals (e)  │
+                 └─────────────────────────┘
+                              │
+                              ▼
+  For each test prediction point:
+     1. Sample e* uniformly with replacement from {e_1, e_2, ..., e_N}
+     2. Compute: y*_bootstrap = ŷ_test + e*
+     3. Repeat 100 times to construct bootstrap forecast distribution
+                              │
+                              ▼
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │  [ Lower Bound (5% percentile) ]  <--  [ Point Forecast (ŷ_test) ]  -->  [ Upper Bound (95% percentile) ]  │
+  └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
