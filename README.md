@@ -33,37 +33,11 @@ Look, retail demand forecasting is usually a mess of generic ARIMA models or ove
 
 Instead of just printing a boring MAPE score, it translates those predictions into actual inventory holding and stockout costs so you know exactly how much cash you're saving.
 
-### 📈 Visual Forecast Performance (Store 1, Item 1)
-<p align="center">
-  <img src="outputs/plots/07_actual_vs_predicted.png" width="90%" alt="Actual vs Predicted sales" />
-</p>
-
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
-## 📐 System Architecture & Pipeline Flow
+## 📐 System Architecture
 
-Below is the detailed pipeline execution flow from data ingestion to model outputs:
-
-```mermaid
-graph TD
-    classDef default fill:#16213e,stroke:#FF6B35,stroke-width:2px,color:#fff;
-    classDef highlight fill:#FF6B35,stroke:#0D1117,stroke-width:2px,color:#0D1117;
-    
-    A[data/raw/train.csv] --> B(data_loader.py: load_data)
-    B --> C{Verify Data Integrity}
-    C -->|Assert No Nulls| D[features.py: Feature Generation]
-    D --> E[Time-aware Chronological Train/Test Split]
-    E --> F[model.py: train_lgb_model]
-    F --> G[evaluate.py: calculate_metrics]
-    G --> H[inventory.py: calculate_inventory_impact]
-    H --> I[Save Plots & Results CSVs]
-    
-    class F,H highlight;
-```
-
----
-
-### 📦 Component Flowchart
+This is how the modules interact. Every box represents a modular Python file in the codebase:
 
 ```text
   ┌────────────────────────────────────────────────────────┐
@@ -127,7 +101,7 @@ We enforce a strict chronological boundary. Future data never leaks into the pas
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
-## 🧮 The Core Mathematics & Inventory Cost Translation
+## 🧮 The Core Mathematics
 
 This project doesn't treat ML like a black box. Here is the math we implement under the hood:
 
@@ -142,37 +116,17 @@ Where:
 *   \(P_{\text{selling}}\) is the retail price (₹250), and \(\gamma\) is the stockout penalty multiplier (1.5x).
 *   \(C_{\text{unit}}\) is the buying price from supplier (₹150), and \(\theta\) is the annual holding rate (25%).
 
-#### 💼 Business Financial Cost Comparison
-<p align="center">
-  <img src="outputs/plots/09_business_impact.png" width="90%" alt="Inventory Cost Comparison" />
-</p>
-
 ### 2. Residual Bootstrapping for Prediction Intervals
-To calculate the 90% confidence range, we use non-parametric residual bootstrapping:
+To calculate the 90% confidence range, we don't assume standard normal distributions. Instead, we use non-parametric residual bootstrapping:
 
 \[\hat{y}_{t, b}^* = \hat{y}_t + \epsilon_b^*, \quad \epsilon_b^* \sim \text{Uniform}(\{e_1, e_2, \dots, e_N\})\]
 
 Where:
 *   \(\hat{y}_{t, b}^*\) is the \(b\)-th bootstrap prediction for step \(t\).
 *   \(\epsilon_b^*\) is a residual sampled with replacement from the set of training errors \(e_i = y_i - \hat{y}_i\).
+*   The 90% interval is defined by taking the 5th and 95th percentiles of the bootstrap distribution:
 
-```mermaid
-graph LR
-    classDef default fill:#16213e,stroke:#FF6B35,stroke-width:2px,color:#fff;
-    classDef highlight fill:#FF6B35,stroke:#0D1117,stroke-width:2px,color:#0D1117;
-
-    A[Compute Train Residuals] --> B[Sample 100 Residuals with Replacement]
-    B --> C[Add to Point Forecast]
-    C --> D[Extract 5th and 95th Percentiles]
-    D --> E[Output 90% Prediction Intervals]
-    
-    class E highlight;
-```
-
-#### 🔮 Safety Stock Prediction Bands
-<p align="center">
-  <img src="outputs/plots/10_prediction_intervals.png" width="90%" alt="Forecast with Prediction Intervals" />
-</p>
+\[\left[ \text{Percentile}_{5}(\{\hat{y}_{t, b}^*\}_{b=1}^{B}), \, \text{Percentile}_{95}(\{\hat{y}_{t, b}^*\}_{b=1}^{B}) \right]\]
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
@@ -198,7 +152,7 @@ df['days_to_holiday'] = df['date'].map(date_to_days).clip(upper=7)
 ```
 This brought the execution time down to **0.23 seconds**. That is a **900x speedup** with 4 lines of clean python.
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
 ## 📓 Walk-Forward Backtesting (Historical Simulation)
 
@@ -212,7 +166,7 @@ Instead of a single test split, we simulate historical deployments across 4 cuto
                        └────────── Train Set ──────────────┘    └─ Test ─┘
 ```
 
----
+<img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
 ## 🚀 How the Bootstrap Algorithm Works
 
@@ -241,11 +195,6 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
   └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 📊 Model Diagnostics (Residual Analysis)
-<p align="center">
-  <img src="outputs/plots/08_residual_analysis.png" width="90%" alt="Residual Diagnostics" />
-</p>
-
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
 ## 🛠️ The Tech Stack (and why I chose it)
@@ -257,11 +206,6 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 | **Pandas & NumPy** | Vectorized feature operations. I avoided custom Python loops to run operations at C-speed. |
 | **Statsmodels** | Used for multiplicative seasonal decomposition to extract trend and residuals. |
 | **Matplotlib** | Clean, minimalist visual plots (no default plotting formats). |
-
-#### 📊 Feature Gain Importance Chart
-<p align="center">
-  <img src="outputs/plots/06_feature_importance.png" width="90%" alt="Feature Importance Chart" />
-</p>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
