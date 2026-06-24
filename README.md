@@ -41,7 +41,7 @@ Instead of just printing a boring MAPE score, it translates those predictions in
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
-## 📐 System Architecture
+# 📐 System Architecture
 
 This is how the modules interact. Every box represents a modular Python file in the codebase:
 
@@ -87,7 +87,7 @@ This is how the modules interact. Every box represents a modular Python file in 
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
-## 🛡️ Chronological Split & Leakage Guard
+# 🛡️ Chronological Split & Leakage Guard
 
 We enforce a strict chronological boundary. Future data never leaks into the past. 
 
@@ -107,11 +107,10 @@ We enforce a strict chronological boundary. Future data never leaks into the pas
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
-## 🧮 The Core Mathematics
+# 🧮 The Core Mathematics
 
 This project doesn't treat ML like a black box. Here is the math we implement under the hood:
-
-### 1. The Inventory Cost Objective Function
+## 1. The Inventory Cost Objective Function
 Inventory cost is not symmetric. A stockout (under-forecasting) is far more expensive than overstocking. We calculate the cost as:
 
 \[C_{\text{total}} = \sum_{t=1}^{T} \left( \mathbb{I}(\hat{y}_t < y_t) \cdot (y_t - \hat{y}_t) \cdot P_{\text{selling}} \cdot \gamma + \mathbb{I}(\hat{y}_t > y_t) \cdot (\hat{y}_t - y_t) \cdot C_{\text{unit}} \cdot \frac{\theta}{365} \right)\]
@@ -122,7 +121,7 @@ Where:
 *   \(P_{\text{selling}}\) is the retail price (₹250), and \(\gamma\) is the stockout penalty multiplier (1.5x).
 *   \(C_{\text{unit}}\) is the buying price from supplier (₹150), and \(\theta\) is the annual holding rate (25%).
 
-### 2. Residual Bootstrapping for Prediction Intervals
+## 2. Residual Bootstrapping for Prediction Intervals
 To calculate the 90% confidence range, we don't assume standard normal distributions. Instead, we use non-parametric residual bootstrapping:
 
 \[\hat{y}_{t, b}^* = \hat{y}_t + \epsilon_b^*, \quad \epsilon_b^* \sim \text{Uniform}(\{e_1, e_2, \dots, e_N\})\]
