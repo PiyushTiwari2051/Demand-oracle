@@ -135,9 +135,9 @@ Where:
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
-## 🎙️ Developer Rants (Why this is built this way)
+# 🎙️ Developer Rants (Why this is built this way)
 
-### Rant 1: Why I hate ARIMA & Prophet for Multi-SKU Retail
+## Rant 1: Why I hate ARIMA & Prophet for Multi-SKU Retail
 ARIMA and Prophet are univariate. If you have 500 SKUs (10 stores $\times$ 50 items), you have to train **500 separate models**. 
 1.  **It takes forever**: Prophet on 500 series takes minutes to run.
 2.  **Zero cross-learning**: If Store 1 Item 1 shares demand characteristics with Store 2 Item 1, univariate models cannot learn that. LightGBM treats the SKU index as a feature, allowing a single model to learn global seasonality patterns across all SKUs simultaneously.
@@ -159,7 +159,7 @@ This brought the execution time down to **0.23 seconds**. That is a **900x speed
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
-## 📓 Walk-Forward Backtesting (Historical Simulation)
+# 📓 Walk-Forward Backtesting (Historical Simulation)
 
 Instead of a single test split, we simulate historical deployments across 4 cutoff points spaced 3 months apart. If the model succeeds across all 4, it is stable.
 
@@ -173,7 +173,7 @@ Instead of a single test split, we simulate historical deployments across 4 cuto
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
-## 🚀 How the Bootstrap Algorithm Works
+# 🚀 How the Bootstrap Algorithm Works
 
 Point forecasts are just guesses. We calculate prediction intervals to give inventory managers a range:
 
@@ -202,7 +202,7 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
-## 🛠️ The Tech Stack (and why I chose it)
+# 🛠️ The Tech Stack (and why I chose it)
 
 | Tech | Why it's here |
 |---|---|
@@ -214,7 +214,7 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
-## 📦 Directory Structure
+# 📦 Directory Structure
 
 ```text
 demand_forecasting/
@@ -255,7 +255,7 @@ demand_forecasting/
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
-## ⚡ Setup & Run
+# ⚡ Setup & Run
 
 First, activate the pre-configured virtual environment:
 
@@ -279,7 +279,7 @@ jupyter notebook
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
-## 🗺️ Roadmap
+# 🗺️ Roadmap
 
 - [x] Vectorize pandas features for C-speed executions.
 - [x] Implement 4-fold walk-forward backtest loop.
@@ -293,7 +293,7 @@ jupyter notebook
 <details>
 <summary>🕵️‍♂️ Secret Easter Egg</summary>
 
-### Congratulations! You scrolled all the way down.
+## Congratulations! You scrolled all the way down.
 
 Here is the exact LightGBM validation logging output from our final run:
 ```text
