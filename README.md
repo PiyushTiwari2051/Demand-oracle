@@ -202,7 +202,7 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=16213e&height=60&section=footer" width="100%"/>
 
-# 🛠️ The Tech Stack (and why I chose it)
+#  The Tech Stack (and why I chose it)
 
 | Tech | Why it's here |
 |---|---|
@@ -214,7 +214,7 @@ Point forecasts are just guesses. We calculate prediction intervals to give inve
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png" width="100%" />
 
-# 📦 Directory Structure
+#  Directory Structure
 
 ```text
 demand_forecasting/
@@ -255,7 +255,7 @@ demand_forecasting/
 
 <img src="https://capsule-render.vercel.app/api?type=rect&color=FF6B35&height=2&width=100%" />
 
-# ⚡ Setup & Run
+#  Setup & Run
 
 First, activate the pre-configured virtual environment:
 
